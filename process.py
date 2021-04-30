@@ -1,6 +1,6 @@
-import win32api
 import os
 import re
+import win32api
 import dto.folder as folder
 
 folders = set()
@@ -13,8 +13,8 @@ def get_drives():
     return drives
 
 
-def folder_iteration(directory):
-    ignoreFolder = re.compile(r"(.*.(sys|Msi|logbin)|Windows|lib|winutils|System Volume Information|\$)", re.IGNORECASE)
+def recursive_folder(directory):
+    ignore_folder = re.compile(r"(.*.(sys|Msi|logbin)|Windows|lib|winutils|System Volume Information|\$)", re.IGNORECASE)
     types = re.compile(r'(^.*\.(jpg|gif|jpeg|png)$)', re.IGNORECASE)
 
     # for directory in directories:
@@ -22,12 +22,12 @@ def folder_iteration(directory):
         # content = ([i for i in os.listdir(directory) if not regex.match(i)])
         directory_list = os.listdir(directory)
         for content in directory_list:
-            if not ignoreFolder.match(content):
+            if not ignore_folder.match(content):
                 new = os.path.join(directory, content)
                 if os.path.isdir(new):
-                    folder_iteration(new)
+                    recursive_folder(new)
                 elif types.match(new):
-                    folders.add(folder.Folder(re.sub(r'[^(\\|/)]+\\?$', '', new)).to_json())
+                    folders.add(folder.Folder(re.sub(r'[^(\\|/)]+\\?$', '', new)))
     except PermissionError:
         print(f"Access denied to read")
 
@@ -35,5 +35,5 @@ def folder_iteration(directory):
 def get_folder():
     for drive in get_drives():
         print(f'Drive -> {drive}')
-        folder_iteration(drive)
+        recursive_folder(drive)
     return folders

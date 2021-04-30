@@ -1,6 +1,6 @@
-import repository.database as repo
+from repository.client import db
 
-collection = repo.DatabaseConfig.db["log"]
+collection = db["log"]
 
 
 class FolderCollection:
