@@ -5,7 +5,7 @@ from json import JSONEncoder
 
 
 class Folder:
-    def __init__(self, directory, status="NEW"):
+    def __init__(self, directory, status="New"):
         self.directory = directory
         self.status = status
         self.created_date = date.datetime.now()
