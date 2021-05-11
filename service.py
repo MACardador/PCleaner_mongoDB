@@ -2,6 +2,14 @@ from repository.folder_collection import FolderCollection
 
 
 def add_folders(folders):
-    # jsonFolder = [{ "folder": folder, "status": new, "modifyDate": date.datetime.now() }]
     FolderCollection.insert_all(folders)
 
+
+def folder_and_metadata(folders):
+    FolderCollection.insert_all(folders)
+
+    for folder in folders:
+        folder
+
+def get_folders():
+    return FolderCollection.select()

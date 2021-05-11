@@ -19,5 +19,9 @@ class FolderCollection:
         collection.delete_one(self)
 
     @staticmethod
+    def select():
+        return collection.find()
+
+    @staticmethod
     def drop():
         collection.drop()
