@@ -4,26 +4,22 @@ import win32api
 import datetime as date
 import cv2
 
-from bson import ObjectId
 
-PROCESS_DATE = date.datetime.now()
-
-
-def create_dict(directory: str, metadata, status: str = "New"):
+def create_dict(folder: str, file: str, metadata):
     return {
-        "directory": directory,
-        "status": status,
-        "createdDate": PROCESS_DATE,
-        "modifiedDate": None,
+        "folder": folder,
+        "file": file,
+        "createdDate": date.datetime.now(),
         "metadata": metadata
     }
 
 
-def metadata(width, height, dtype):
+def metadata(shape, dtype):
+    height, width, channel = shape
     return {
         "width": width,
         "height": height,
-        "size": width * height,
+        "channel": channel,
         "type": dtype
     }
 
@@ -35,26 +31,26 @@ def get_drives():
 
 
 def recursive_folder(self, folders: list):
-    ignore_folder = re.compile(r"(.*.(sys|Msi|logbin)|Windows|lib|winutils|System Volume Information|\$)",
+    ignore_folder = re.compile(r"(.*.(sys|Msi|logbin)|Windows|lib|winutils|System Volume Information|AppData|\$)",
                                re.IGNORECASE)
-    types = re.compile(r'(^.*\.(jpg|gif|jpeg|png)$)', re.IGNORECASE)
-
+    extension = re.compile(r'(s*(bmp|pbm|pgm|ppm|jpeg|jpg|jpe|jp2|tiff|tif)$)', re.IGNORECASE)
+    file = re.compile(r'(.*[\\])(.*[.\\]\S*.$)', re.IGNORECASE)
     # for directory in directories:
     try:
-        # content = ([i for i in os.listdir(directory) if not regex.match(i)])
-        directory_list = os.listdir(self)
-        for entry in directory_list:
+        for entry in os.listdir(self):
             if not ignore_folder.match(entry):
                 new = os.path.join(self, entry)
                 if os.path.isdir(new):
                     recursive_folder(new, folders)
-                elif types.match(new):
-                    im = cv2.imread(new)
-                    h, w, _ = im.shape
-                    new_dict = create_dict(re.sub(r'[^(\\|/)]+\\?$', '', new), metadata(w, h, "REgezx para saber a extensao"))
+                elif extension.search(new):
 
-                    if new_dict not in folders:
-                        folders.append(new_dict)
+                    im = cv2.imread(new)
+                    if im is not None:
+
+                        new_dict = create_dict(file.search(new).group(1), file.search(new).group(2),
+                                               metadata(im.shape, extension.search(new).group()))
+                        if new_dict not in folders:
+                            folders.append(new_dict)
 
     except PermissionError:
         print(f"Access denied to read")
